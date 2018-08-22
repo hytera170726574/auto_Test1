@@ -17,6 +17,7 @@ import math
 import operator
 from functools import reduce
 
+
 class base_Test():
 
     def __int__(self):
