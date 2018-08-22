@@ -1,0 +1,476 @@
+*** Settings ***
+Library           AutoItLibrary
+Library           auto_Test
+Library           DatabaseLibrary
+
+*** Test Cases ***
+紧急呼叫
+    [Documentation]    对一个手台进行全双工呼叫*
+    ...    1.添加一个workspace*
+    ...    2.脱出556677手台面板
+    ...    3.等待两秒
+    ...    4.点击呼叫面板全双工按钮
+    ...    5.鼠标移动到（1，1）位置#真实坐标
+    ...    6.利用函数确认是否点击上全双工按钮
+    ...    8.点击面板进行呼叫
+    ...    9.确认面板颜色
+    ...    10.关闭新建的workspace，恢复测试环境
+    call_mso    fe000001    10.110.15.191
+    Comment    log    fe000001
+    Comment    add_Workspace
+    Comment    sleep    2
+    Comment    polout_Cpanel    32820900    2    2
+    sleep    2
+    Comment    click_Cpanel    2    2    cemergency
+    mouse move    1    1
+    Comment    confirm_Call_Type    2    2    Pecall
+    click_Cpanel    2    2    cnumber
+    Comment    rev_mso    10.110.15.191    38000
+    mouse move    1    1
+    Comment    confirm_Panel_Color    2    2    green    5
+    click_Cpanel    2    2    cnumber
+    sleep    2
+    click_Cpanel    2    2    cnumber
+    rev_mso    10.110.15.191    38000    1
+    sleep    10
+    click_Cpanel    2    2    cdis_connect
+    Comment    sleep    5
+    Comment    del_Workspace
+
+111
+    @{a}    call_mso    fe000001    10.110.15.191
+    rev_mso    10.110.15.191    38000    @{a}
+
+msg
+    sleep    5
+    msgnew    2200201
+    send    测试短信
+    send    new_cropatch
+    send    123
+    Mouse Click    LEFT    945    803
+
+pol
+    pol    2200200
+    returncolor    15    478
+
+test
+    sleep    5
+    msgnew    2200201
+    send    测试短信
+    send    new_cropatch
+    send    123
+    Mouse Click    LEFT    945    803
+    pol    2200201
+    sleep    20
+
+cropatch
+    sleep    5
+    creat_simul
+    add_member    8801001    1    simul_pannel
+    add_member    8888905    1    simul_pannel
+    delete_simul    1
+
+mergecall
+    sleep    5
+    dragout    8801001
+    sleep    1
+    Mouse Click    LEFT    336    212
+    sleep    1
+    Mouse Click    LEFT    410    245
+    sleep    2
+    ${result}    image_Comparsion_Panel    1    1    Pecall
+
+test2
+    sleep    5
+    drag_custom_pannel    1    meeting_pannel
+
+MSGone
+    sleep    5
+    SendMsgOne    8888888
+    sleep    2
+    mouseclick    left    600    800
+    sleep    2
+    send    ^a
+    sleep    2
+    send    {DELETE}
+    sleep    2
+    send    测试短信
+    mouseclick    left    950    800
+
+MSGmore
+    sleep    3
+    @{relnum}    create list    8888888    8802002
+    SendMsgMore    @{relnum}
+    ClickSend    测试短信
+    delGro
+
+test111
+    @{a}    set_variable    1    2    3
+    log    @{a}
+    SendMsgMore    @{a}
+
+短信发送
+    call_mso    fe000002    10.110.15.191
+    sleep    3
+    Connect To Database Using Custom Params    pymysql    db="test",user="root",password='root',host='172.16.0.241',port=3306
+    @{mso_status}    Query    select TEST_RESULT from testpuc where TEST_CASE_NO =2
+    log    @{mso_status}
+    Disconnect From DataBase
+
+短信接收
+    call_mso    fe000003    10.110.15.191
+
+普通半双工个呼-ST-PUC-PDT_CALL-001
+    [Documentation]    3.拖出面板33030201面板，模拟源监听
+    ...    4.获取到呼叫面板的PTT位置
+    ...    5.点击面板发起呼叫，模拟源回复呼叫成功
+    ...    7.呼叫建立成功，点击面板调度员申请话权，模拟源回复申请话权成功
+    call_mso    fe000001    10.110.21.51
+    add_Workspace
+    polout_Cpanel    33030201    1    1
+    @{PTT}    return_postion    1    1    cnumber
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    green    3
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    orange    3
+    del_Workspace
+
+紧急半双工个呼-ST-PUC-PDT_CALL-002
+    [Documentation]    3.拖出面板33030201面板，模拟源监听
+    ...
+    ...    4.获取到呼叫面板的PTT位置
+    ...
+    ...    7.点击面板发起呼叫，模拟源回复呼叫成功
+    ...
+    ...    9.呼叫建立成功，点击面板调度员申请话权，模拟源回复申请话权成功
+    call_mso    fe000002    10.110.21.51
+    add_Workspace
+    polout_Cpanel    33030201    1    1
+    click_cpanel    1    1    cemergency
+    confirm_call_type    1    1    Pecall
+    @{PTT}    return_postion    1    1    cnumber
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    red    3
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    red    3
+    del_Workspace
+
+优先半双工个呼-ST-PUC-PDT_CALL-003
+    [Documentation]    3.拖出面板33030201面板，模拟源监听
+    ...    4.获取到呼叫面板的PTT位置
+    ...    5.点击面板发起呼叫，模拟源回复呼叫成功
+    ...    7.呼叫建立成功，点击面板调度员申请话权，模拟源回复申请话权成功
+    call_mso    fe000002    10.110.21.51
+    add_Workspace
+    polout_Cpanel    33030201    1    1
+    click_cpanel    1    1    cpriotity
+    confirm_call_type    1    1    Ppcall
+    @{PTT}    return_postion    1    1    cnumber
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    green    3
+    mouse_click    LEFT    @{PTT}[0]    @{PTT}[1]
+    confirm_panel_color    1    1    orange    3
+    del_Workspace
+
+*** Keywords ***
+polout_Cpanel
+    [Arguments]    ${keys}    ${x}    ${y}    # keys=number,x,y是相对坐标
+    [Documentation]    从资源树种找到某组或手台，并且将面板拖入workspace中的某一位置
+    @{tmp}    Return_Postion    0    search_bar    0
+    mouse click    LEFT    @{tmp}[0]    @{tmp}[1]    1
+    send    ^a
+    send    {delete}
+    send    ${keys}
+    sleep    2
+    send    {enter}
+    sleep    4
+    ${tmp1}    Find_Item_on_Tree
+    @{m}    Return_Postion    ${x}    ${y}    cnumber
+    Mouse Click Drag    LEFT    5    ${tmp1}    @{m}[0]    @{m}[1]
+
+click_Cpanel
+    [Arguments]    ${x}    ${y}    ${func}    # x,y是面板相对坐标位置；func是你需要对面板进行的操作
+    [Documentation]    点击workspace中某一面板的某一按钮,其中func请查看excel表中的说明
+    ${m1}    Return_Postion    ${x}    ${y}    ${func}
+    mouse click    LEFT    ${m1[0]}    ${m1[1]}
+
+add_Dgna_Member
+    [Arguments]    ${num}    ${pos}    # num is the MS you want to add :pos is the number of dgna on the list
+    @{dgna}    dgna_Pos    0    dgna_c
+    mouse_click    LEFT    @{dgna}[0]    ${dgna[1]}
+    @{tmp}    Return_Postion    0    search_bar    0
+    mouse click    LEFT    ${tmp[0]}    ${tmp[1]}    1
+    send    ^a
+    send    {delete}
+    send    ${num}
+    sleep    1
+    send    {enter}
+    sleep    2
+    ${tmp1}    Find_Item_on_Tree
+    @{dgna_panel}    dgna_Pos    ${pos}    dgna_pannel
+    mouse click drag    LEFT    5    ${tmp1}    ${dgna_panel[0]}    ${dgna_panel[1]}
+    @{dgna}    dgna_Pos    0    dgna_o
+    mouse_click    LEFT    ${dgna[0]}    ${dgna[1]}
+
+confirm_Call_Type
+    [Arguments]    ${x}    ${y}    ${func}
+    [Documentation]    确认状态栏中状态是否正确——————————
+    ...    threshold为其阈值，只有当返回值为1时才通过，否则不通过，如果点击了正确的呼叫按钮则通过
+    Comment    ${threshold}    Set variable    ${2}    #float
+    ${result}    image_Comparsion_Panel    ${x}    ${y}    ${func}
+    Should Be Equal As Numbers    ${result}    1.0
+
+add_Workspace
+    [Documentation]    用于添加第二个workspace
+    mouse click    LEFT    574    107
+    sleep    1
+
+del_Workspace
+    mouse click    LEFT    698    98    1
+    sleep    1
+    mouse click    LEFT    1045    591    1
+
+SendMsgOne
+    [Arguments]    ${number1}
+    [Documentation]    给一个设备发送一条短信
+    Sleep    2
+    Mouse Move    208    109
+    mouse click    left    208    109
+    mouse click drag    left    138    468    288    137
+    sleep    5
+    mouse click    left    480    184
+    sleep    2
+    mouse click    left    782    361
+    sleep    2
+    mouse click    left    787    330
+    send    ^a
+    send    {DELETE}
+    sleep    2
+    mouse click    left    802    331
+    send    ${number1}
+    sleep    2
+    send    {Enter}
+    sleep    2
+    mouse click    left    1463    704
+    @{a}    create list    a    b
+    @{a}    messageFindMS
+    mouse click    left    @{a}[0]    @{a}[1]
+    sleep    2
+    mouse click    left    964    509
+    sleep    2
+    mouse click    left    1183    763
+    sleep    3
+    mouse click    left    1025    571
+
+SendMsgMore
+    [Arguments]    @{NUM}
+    [Documentation]    给多个设备发送一条短信
+    sleep    5
+    Mouse Move    208    109
+    mouse click    left    208    109
+    mouse click drag    left    138    468    288    137
+    sleep    5
+    mouse click    left    480    184
+    sleep    2
+    mouse click    left    782    361
+    sleep    2
+    : FOR    ${i}    IN    @{NUM}
+    \    mouse click    left    787    330
+    \    send    ^a
+    \    send    {DELETE}
+    \    sleep    2
+    \    mouse click    left    802    331
+    \    send    ${i}
+    \    sleep    2
+    \    send    {Enter}
+    \    sleep    2
+    \    mouse click    left    1463    704
+    \    @{a}    create list    a    b
+    \    @{a}    messageFindMS
+    \    mouse click    left    @{a}[0]    @{a}[1]
+    \    sleep    2
+    \    mouse click    left    966    509
+    mouse click    left    1183    763
+    sleep    3
+    mouse click    left    1025    571
+
+MsgBoardDrag
+    [Documentation]    拖出短信面板
+    Sleep    2
+    Mouse Move    208    109
+    mouse click    left    208    109
+    mouse click drag    left    138    468    288    137
+    sleep    5
+
+MonitorClick
+    [Documentation]    ？？？？
+    mouse click    left    383    262
+
+confirm_Panel_Color
+    [Arguments]    ${x}    ${y}    ${descolor}    ${wait_time}
+    [Documentation]    判断面板颜色
+    ${color}    panel_Color    ${x}    ${y}    ${descolor}    ${wait_time}
+    log    ${color}
+    Should Be Equal As Strings    ${color}    ${descolor}
+
+creat_cropatch
+    [Arguments]    ${cro_num}
+    [Documentation]    创建派接
+    @{tmp}    search_Pos    0    cross_o
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    cross_add
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    cross_id
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    send    ${cro_num}
+    sleep    1
+    @{tmp}    search_Pos    0    cross_save
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+delete_cropatch
+    [Arguments]    ${order}
+    [Documentation]    删除派接
+    @{tmp}    search_Pos    ${order}    cross_delete
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    cross_delete_ok
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+add_member
+    [Arguments]    ${telephone}    ${order}    ${type}    # {手台号}{群组、会议、多选的第几个}{类型}
+    [Documentation]    群组、会议、多选、动态重组，添加成员——————————————\#需要面板展开切群组、动态组、多选、会议建立成功
+    @{tmp}    Return_Postion    0    search_bar    0
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    send    ^a
+    send    {delete}
+    send    ${telephone}
+    sleep    1
+    send    {enter}
+    sleep    1
+    send    {enter}
+    sleep    1
+    ${find}    Find_Item_on_Tree
+    sleep    1
+    @{tmp1}    search_Pos    ${order}    ${type}
+    sleep    1
+    mouseclickdrag    left    5    ${find}    @{tmp1}[0]    @{tmp1}[1]
+
+creat_meeting
+    [Arguments]    ${num}
+    @{tmp}    search_Pos    0    meeting_o
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    meeting_add
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    meeting_id
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    send    ${num}
+    sleep    1
+    @{tmp}    search_Pos    0    meeting_save
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+delete_meeting
+    [Arguments]    ${order}
+    @{tmp}    search_Pos    ${order}    meeting_delete
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    meeting_delete_ok
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+creat_simul
+    @{tmp}    search_Pos    0    simul_o
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    simul_add
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+delete_simul
+    [Arguments]    ${order}
+    @{tmp}    search_Pos    ${order}    simul_delete
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    sleep    1
+    @{tmp}    search_Pos    0    simul_delete_ok
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+
+dragout
+    [Arguments]    ${telephone}
+    [Documentation]    从资源树中拖出面板到workspace
+    @{tmp}    return_Postion    0    search_bar    0
+    Mouse Click    LEFT    @{tmp}[0]    @{tmp}[1]
+    send    ^a
+    send    {delete}
+    send    drag_custom_pannel
+    sleep    1
+    send    {enter}
+    sleep    1
+    ${find}    Find_Item_on_Tree
+    sleep    1
+    mouseclickdrag    left    5    ${find}    391    186
+
+cropatch_member
+    [Arguments]    ${telephone}    ${order}
+    [Documentation]    暂不用
+    add_member    ${telephone}     ${order}    cross_pannel
+
+drag_custom_pannel
+    [Arguments]    ${order}    ${custom_pannel}
+    [Documentation]    脱出新建的面板
+    ...    order为第几个面板
+    ...    custom_pannel为面板功能
+    @{tmp}    search_Pos    ${order}    ${custom_pannel}
+    mouseclickdrag    left    5    @{tmp}[1]    391    186
+
+close_Dgna
+    mouse click    LEFT    22    753
+
+open_Dgna
+    mouse_click    LEFT    22    1053
+
+add_Dgna
+    [Arguments]    ${dgna_name}
+    [Documentation]    1.点击新建动态组按钮    #使用此模块前请保证动态重组面板处于展开状态
+    ...    2.返回动态组输入名称框的位置,以及确认键位置
+    ...    3.点击动态组名称输入框
+    ...    4.输入动态组名称
+    ...    5.点击确认键
+    mouse_click    LEFT    261    754
+    @{dgna_input_loc}    return_Dgna_Input
+    mouse_click    LEFT    @{dgna_input_loc}[0]    @{dgna_input_loc}[1]
+    send    ${dgna_name}
+    mouse_click    LEFT    @{dgna_input_loc}[2]    @{dgna_input_loc}[3]
+
+ClickSend
+    [Arguments]    ${InputMessage}
+    [Documentation]    点击发送
+    sleep    2
+    mouseclick    left    600    800
+    sleep    2
+    send    ^a
+    sleep    2
+    send    {DELETE}
+    sleep    2
+    send    ${InputMessage}
+    mouseclick    left    950    800
+
+delGro
+    [Documentation]    删除群组短信
+    sleep    3
+    mouse click    right    400    260
+    send    {down}
+    sleep    2
+    send    {Enter}
+
+click_Address_List
+    mouse_click    LEFT    70    108
+
+click_Tool_Bar
+    mouse_click    LEFT    209    107
+
+initialize_Database
+    [Documentation]    初始化数据库
+    Connect To Database Using Custom Params    pymysql    db="test",user="root",password='root',host='172.16.0.241',port=3306
+    Execute Sql String    update testpuc set TEST_RESULT ="0"
+    Disconnect From DataBase

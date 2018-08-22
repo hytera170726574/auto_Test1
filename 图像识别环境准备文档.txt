@@ -1,0 +1,14 @@
+一、
+python3以上的版本，没有对应的PIL模块，需要你用pip安装pillow模块。 pip install pillow
+二、
+还需要安装pytesseract模块，pip install pytesseract
+下载并安装tesseract-ocr：
+解压之后，有三个文件夹，包括：
+源码、安装包、中文语言包。
+三、
+请点击tesseract-ocr-setup.exe进行安装，安装的时候，请记住安装目录。
+安装完成之后，把中文语言包里面的文件，移动到Tesseract-OCR安装目录下的tessdata文件夹里面。
+四、
+然后打开pytesseract扩展包里面的pytesseract.py文件，修改代码：
+把tesseract_cmd后面的参数，改为tesseract.exe的绝对路径。（此处需注意Python2和Python3的区别）
+到此，图像识别的环境准备工作就算是完成了。
